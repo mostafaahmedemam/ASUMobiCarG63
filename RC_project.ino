@@ -1,25 +1,103 @@
-int state =0;
+char state=0; ;
 int motor_A1=5; //motordriver..2
 int motor_A2=6; //motordriver ..7
 int motor_b1=9; //motordriver..10
-int motor_b2=10; //motordriver..15
-int motor_c1=3;//....2
-int motor_c2=7;//....7
-int motor_d1=12;//...1
-int motor_d2=13;//...15
+int motor_b2=10; //motordriver..14
 int velocity =255;
-
-/*int echo=
- * ;
-int trig=3
+int echo=4;
+int trig=3;
 float dur,dis;
-*/
-int RS=2;
-int LS=8;
-int MS=11;
-int LSt=0;
-int RSt=0;
-int MSt=0;
+const int pinL=13;
+const int pinR=2;
+const int pinC=12;
+int LS;
+int RS;
+int MS;
+int a,t,value;
+void Forward(){
+  analogWrite(motor_A1,0); 
+          analogWrite(motor_A2,velocity); //ymen wara
+          analogWrite(motor_b1,0); //shmal wara
+          analogWrite(motor_b2,velocity*.75);
+}
+
+void Backward(){
+   analogWrite(motor_A1,velocity);
+        analogWrite(motor_A2,0); // l motor l ymen 2odam
+        analogWrite(motor_b1,velocity*.75);
+        analogWrite(motor_b2,0); //l motor l shmal 2odam
+  
+}
+
+void Right(){
+  analogWrite(motor_A1,0); 
+                analogWrite(motor_A2,velocity);  //ymen wara
+                analogWrite(motor_b1,velocity);  // shmal 2odam
+                analogWrite(motor_b2,0);
+}
+
+void Left(){
+  analogWrite(motor_A1,velocity);
+             analogWrite(motor_A2,0);//ymen 2odam
+             analogWrite(motor_b1,0); //shmal wara
+             analogWrite(motor_b2,velocity);
+}
+
+
+
+
+
+//line follower directions
+void Forward2(){
+  analogWrite(motor_A1,0); 
+          analogWrite(motor_A2,.2*velocity); //ymen wara
+          analogWrite(motor_b1,0); //shmal wara
+          analogWrite(motor_b2,.2*velocity*.75);
+}
+
+void Backward2(){
+   analogWrite(motor_A1,.2*velocity);
+        analogWrite(motor_A2,0); // l motor l ymen 2odam
+        analogWrite(motor_b1,.2*velocity*.75);
+        analogWrite(motor_b2,0); //l motor l shmal 2odam
+  
+}
+
+void Right2(){
+  analogWrite(motor_A1,0); 
+                analogWrite(motor_A2,.2*velocity);  //ymen wara
+                analogWrite(motor_b1,.2*velocity);  // shmal 2odam
+                analogWrite(motor_b2,0);
+}
+
+void Left2(){
+  analogWrite(motor_A1,.2*velocity);
+             analogWrite(motor_A2,0);//ymen 2odam
+             analogWrite(motor_b1,0); //shmal wara
+             analogWrite(motor_b2,.2*velocity);
+}
+
+
+
+void Stop(){
+  
+                analogWrite(motor_A1,0); 
+                analogWrite(motor_A2,0);  //ymen yo2f
+                analogWrite(motor_b1,0);  // shmal yo2f
+                analogWrite(motor_b2,0);
+}
+void Circle(){
+  analogWrite(motor_A1,0); 
+          analogWrite(motor_A2,velocity); //ymen wara
+          analogWrite(motor_b1,0); //shmal wara
+          analogWrite(motor_b2,velocity*0.4);
+}
+void Circle_left(){
+  analogWrite(motor_A1,0); 
+          analogWrite(motor_A2,velocity*.5); //ymen wara
+          analogWrite(motor_b1,0); //shmal wara
+          analogWrite(motor_b2,velocity*.75); 
+}
 
 void setup() {
   //b3rf l pins eh outut w eh input 
@@ -27,16 +105,11 @@ pinMode(motor_A1,OUTPUT);
 pinMode(motor_A2,OUTPUT);
 pinMode(motor_b1,OUTPUT);
 pinMode(motor_b2,OUTPUT);
-pinMode(motor_c1,OUTPUT); 
-pinMode(motor_c2,OUTPUT);
-pinMode(motor_d1,OUTPUT);
-pinMode(motor_d2,OUTPUT);
-pinMode(LS,INPUT);
-pinMode(MS,INPUT);
-pinMode(RS,INPUT);
-/*
+LS=digitalRead(pinL);
+RS=digitalRead(pinR);
+MS=digitalRead(pinC);
 pinMode(trig,OUTPUT);
-pinMode(echo,INPUT);*/
+pinMode(echo,INPUT);
 Serial.begin(9600);
 }
 
@@ -44,156 +117,149 @@ Serial.begin(9600);
 
 
 void loop() {
- Serial.println(state);
+ digitalWrite(trig,LOW);
+  delayMicroseconds(2);
+  digitalWrite(trig,HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trig,LOW);
+  dur=pulseIn(echo,HIGH);
+  dis=dur*.043/2;
+  
+  Serial.print("distance");
+  Serial.println(dis);
   // bshof feh data wslt ll bluetooth module wla l2
   if (Serial.available()> 0){
     state= Serial.read(); //b7t l data f variable state
       }
-      
-      if (state== 'F'){
+       if(dis<=60)
+              {
+                 Stop();
+                 delay(1000);
+                 Backward();
+                 delay(1000);
+                 Stop();
+                             }
+        else{
+            
+      if (state== 'B'){
        // for forward
-        analogWrite(motor_A1,velocity);
-        analogWrite(motor_A2,0); // l motor l ymen 2odam
-        analogWrite(motor_b1,velocity);
-        analogWrite(motor_b2,0); //l motor l shmal 2odam
-        analogWrite(motor_c1,velocity);
-        analogWrite(motor_c2,0); // l motor l ymen 2odam
-        analogWrite(motor_d1,velocity);
-        analogWrite(motor_d2,0); //l motor l shmal 2odam
+        Backward();
       }
         
-        else if (state =='B'){
+        else if (state =='F'){
           //backward
-          analogWrite(motor_A1,0); 
-          analogWrite(motor_A2,velocity); //ymen wara
-          analogWrite(motor_b1,0); //shmal wara
-          analogWrite(motor_b2,velocity);
-          analogWrite(motor_c1,0); 
-          analogWrite(motor_c2,velocity); //ymen wara
-          analogWrite(motor_d1,0); //shmal wara
-          analogWrite(motor_d2,velocity);
+         Forward();
            }
           
           else if (state == 'L'){
             //right
-             analogWrite(motor_A1,velocity);
-             analogWrite(motor_A2,0);//ymen 2odam
-             analogWrite(motor_b1,0); //shmal wara
-             analogWrite(motor_b2,velocity); 
-             analogWrite(motor_c1,0);
-             analogWrite(motor_c2,velocity);//ymen 2odam
-             analogWrite(motor_d1,velocity); //shmal wara
-             analogWrite(motor_d2,0);
+            Left();
             }
             
             else if (state =='R'){
-              //left11111
-                analogWrite(motor_A1,0); 
-                analogWrite(motor_A2,velocity);  //ymen wara
-                analogWrite(motor_b1,velocity);  // shmal 2odam
-                analogWrite(motor_b2,0);
-                analogWrite(motor_c1,velocity); 
-                analogWrite(motor_c2,0);  //ymen wara
-                analogWrite(motor_d1,0);  // shmal 2odam
-                analogWrite(motor_d2,velocity);
+              //left
+               Right();
               }
-                else {
-                analogWrite(motor_A1,0); 
-                analogWrite(motor_A2,0);  //ymen yo2f
-                analogWrite(motor_b1,0);  // shmal yo2f
-                analogWrite(motor_b2,0);
-                analogWrite(motor_c1,0); 
-                analogWrite(motor_c2,0);  //ymen yo2f
-                analogWrite(motor_d1,0);  // shmal yo2f
-                analogWrite(motor_d2,0);
-              }
-       
-             LSt=digitalRead(LS);
-             RSt=digitalRead(RS);
-             MSt=digitalRead(MS);  
-         if(LSt==LOW&&MSt==HIGH&&RSt==LOW){
-       analogWrite(motor_A1,velocity);
-        analogWrite(motor_A2,0); // l motor l ymen 2odam
-        analogWrite(motor_b1,velocity);
-        analogWrite(motor_b2,0); //l motor l shmal 2odam
-        analogWrite(motor_c1,velocity);
-        analogWrite(motor_c2,0); // l motor l ymen 2odam
-        analogWrite(motor_d1,velocity);
-        analogWrite(motor_d2,0); //l motor l shmal 2odam
-        }
-      if(LSt==HIGH&&MSt==LOW&&RSt==LOW){
-          analogWrite(motor_A1,velocity);
-             analogWrite(motor_A2,0);//ymen 2odam
-             analogWrite(motor_b1,0); //shmal wara
-             analogWrite(motor_b2,velocity); 
-             analogWrite(motor_c1,0);
-             analogWrite(motor_c2,velocity);//ymen 2odam
-             analogWrite(motor_d1,velocity); //shmal wara
-             analogWrite(motor_d2,0);
-        }
-       if(LSt==0&&MSt==0&&RSt==1){
-       analogWrite(motor_A1,0); 
-                analogWrite(motor_A2,velocity);  //ymen wara
-                analogWrite(motor_b1,velocity);  // shmal 2odam
-                analogWrite(motor_b2,0);
-                analogWrite(motor_c1,velocity); 
-                analogWrite(motor_c2,0);  //ymen wara
-                analogWrite(motor_d1,0);  // shmal 2odam
-                analogWrite(motor_d2,velocity);
-        }
-        
-       if(LSt==1&&MSt==1&&RSt==1){
-             analogWrite(motor_A1,velocity);
-        analogWrite(motor_A2,0); // l motor l ymen 2odam
-        analogWrite(motor_b1,velocity);
-        analogWrite(motor_b2,0); //l motor l shmal 2odam
-        analogWrite(motor_c1,velocity);
-        analogWrite(motor_c2,0); // l motor l ymen 2odam
-        analogWrite(motor_d1,velocity);
-        analogWrite(motor_d2,0); //l motor l shmal 2odam
-        }
-        
-        if(LSt==0&&MSt==1&&RSt==1){
-          analogWrite(motor_A1,0); 
-                analogWrite(motor_A2,velocity);  //ymen wara
-                analogWrite(motor_b1,velocity);  // shmal 2odam
-                analogWrite(motor_b2,0);
-                analogWrite(motor_c1,0); 
-                analogWrite(motor_c2,velocity);  //ymen wara
-                analogWrite(motor_d1,0);  // shmal 2odam
-                analogWrite(motor_d2,velocity);
-            
-              }
-         if(LSt==1&&MSt==1&&RSt==0){
-       analogWrite(motor_A1,velocity);
-             analogWrite(motor_A2,0);//ymen 2odam
-             analogWrite(motor_b1,0); //shmal wara
-             analogWrite(motor_b2,velocity); 
-             analogWrite(motor_c1,0);
-             analogWrite(motor_c2,velocity);//ymen 2odam
-             analogWrite(motor_d1,velocity); //shmal wara
-             analogWrite(motor_d2,0);       
-         }
-  if(LSt==0&&MSt==0&&RSt==0){
-         analogWrite(motor_A1,0);  
-                analogWrite(motor_A2,velocity);  //ymen wara
-                analogWrite(motor_b1,velocity);  // shmal 2odam
-                analogWrite(motor_b2,0);
-                analogWrite(motor_c1,velocity); 
-                analogWrite(motor_c2,0);  //ymen wara
-                analogWrite(motor_d1,0);  // shmal 2odam
-                analogWrite(motor_d2,velocity);
-                delay(5000);
-                  analogWrite(motor_A1,velocity);
-             analogWrite(motor_A2,0);//ymen 2odam
-             analogWrite(motor_b1,0); //shmal wara
-             analogWrite(motor_b2,velocity); 
-             analogWrite(motor_c1,0);
-             analogWrite(motor_c2,velocity);//ymen 2odam
-             analogWrite(motor_d1,velocity); //shmal wara
-             analogWrite(motor_d2,0);
-                delay(10000);
+          
+              
+                              
+              else if(state=='V'){                
+                Serial.print("ls=");
+  Serial.println(LS);
+  Serial.print("ms=");
+  Serial.println(MS);
+  Serial.print("rs=");
+  Serial.println(RS);
+              
+  if((LS==LOW &&MS==HIGH && RS==LOW) || (LS==HIGH && MS==HIGH && RS==HIGH)){
+   Forward2();
   }
-        
-      
+ else if((LS==HIGH && MS==LOW && RS==LOW) ||( MS==HIGH && LS==HIGH && RS==LOW)){
+Left2();
+  }
+ else if((LS==LOW &&MS==LOW && RS==HIGH)|| (RS==HIGH && MS==HIGH && LS==LOW)){
+Right2(); 
+  }
+ else if(LS==LOW && MS==LOW && RS==LOW){
+Right2();
+             delay(1000);
+  Left2();
+ delay(2000);            
+             
+ }
+ else Stop();
+              }
+           
+           else if(state=='W')                     //accurate move
+           {
+              if(state=='S')Stop();
+              else{
+             // infinity Shape
+             Circle();
+             delay(4000);
+             Circle_left();
+             delay(4500);
+
+             // Rectangle Shape
+             Stop();
+             delay(2500);
+             Forward();
+             delay(1000);
+             Right();
+             delay(400);
+             Forward();
+             delay(750);
+             Right();
+             delay(400);
+             Forward();
+             delay(1000);
+             Right();
+             delay(400);
+             Forward();
+             delay(750);    
+             // Circle Shape
+            Stop();
+             delay(2500);
+             Circle();
+              delay(4000);
+              Stop();
+               delay(2500);
+            
+             
+              }
+           }  
+          
+      else if(state=='S'){
+  Stop();
 }
+ else Stop();
+      switch(state)
+     {
+  case'D':
+  
+   value=Serial.parseInt();
+       t=value/60;
+      Forward();
+       delay(t*1000);
+  break;
+  
+  case'H':
+     value=Serial.parseInt();
+       t=value/60;
+      Backward();
+       delay(t*1000);
+  break;
+  case'Y':
+       value=Serial.parseInt();
+       t=(value*2.5*.8)/(2*360);
+       Right();
+       delay(t*1000);
+  break; 
+      
+  case 'S':
+  Stop();
+  break;     
+}
+        }
+ }
+
